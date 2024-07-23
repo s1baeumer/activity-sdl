@@ -1,0 +1,328 @@
+{
+    "duration" : "24h",
+    "configType" : "TABBED",
+    "description": "!!! Please do not change the dashboard !!!\n If you want to add meaningful content please get in touch with the EvilTwins™",
+    "tabs" : [
+        {
+            "tabName": "General",
+            "options": {
+                "layout": {
+                    "columns": 3
+                }
+            },        
+            "parameters": [],
+            "graphs": [
+                {
+                    "graphStyle": "number",
+                    "query": "dataSource.vendor='EvilTwins'\n| group c=count()",
+                    "title": "Activities",
+                    "options": {
+                        "format": "-",
+                        "precision": "0",
+                        "suffix": " Events",
+                        "color": "blue",
+                        "backgroundColor": "gray"
+                    }
+                },
+                {
+                    "title": "Activities over time",
+                    "graphStyle": "line",
+                    "lineSmoothing": "straightLines",
+                    "plots": [
+                        {
+                            "color": "#fb000a",
+                            "facet": "rate",
+                            "filter": "event.type ='Activity'",
+                            "label": "Activities"
+                        }
+                    ]
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' \n| lookup action from \"s1mgmtactivities\" by id=activity.activity.type\n| group NumberOfActivities=count(activity.activity.type) by activity.activity.type, action\n| sort -NumberOfActivities\n| limit 20\n| columns \"#\"=NumberOfActivities, Activity=action, ActivityID=format(\"%d\", activity.activity.type)",
+                    "showBarsColumn": "false",
+                    "title": "Top20 - Activities"
+                },
+                {
+                    "graphStyle": "pie",
+                    "max-PieSlices": 20,
+                    "query": "event.type ='Activity' \n| lookup action from \"s1mgmtactivities\" by id=activity.activity.type\n| group NumberOfActivities=count(activity.activity.type) by activity.activity.type, action\n| columns  Activity=action, NumberOfActivities\n| limit 20\n| sort -NumberOfActivities",
+                    "title": "Top20  Activities"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "false",
+                    "query": "event.type ='Activity' \n| group NumberOfActivities=count(activity.activity.type) by activity.site.name \n| sort -NumberOfActivities\n| limit 20\n| columns \"#\"=NumberOfActivities, Site=activity.site.name ",
+                    "title": "Top20 - sites with most activities"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "false",
+                    "query": "event.type ='Activity' \n| group NumberOfActivities=count(activity.activity.type) by activity.site.name \n| sort NumberOfActivities\n| limit 20\n| columns \"#\"=NumberOfActivities, Site=activity.site.name\n",
+                    "title": "Top20 - sites with lowest activities"
+                }
+           ]
+        },
+        {
+            "tabName": "Users",
+            "options": {
+                "layout": {
+                    "columns": 3
+                }
+            },        
+            "parameters": [],
+            "graphs": [
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type=133\n| parse \"user $user$ failed\" from activity.description.primary\n| group NumberOfFailedLogins=count(user) by user\n| columns user, NumberOfFailedLogins\n| sort -NumberOfFailedLogins\n| limit 10",
+                    "showBarsColumn": "false",
+                    "title": "Top10 Users with failed logins "
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type='Activity' activity.activity.type in (23,27,35,36,133,134,138,140,142,143,144,1023,3713,3714,3715)\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group NumberOfActivities=count(activity.activity.type) by activity.activity.type, action\n| columns NumberOfActivities, Activities=action\n| sort -NumberOfActivities",
+                    "showBarsColumn": "false",
+                    "title": "Number of activities by type"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "true",
+                    "query": "event.type='Activity' not(activity.data.username='')\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group NumberOfActivities=count(activity.activity.type) by activity.data.username \n| filter activity.data.username != null\n| columns UserName=activity.data.username, NumberOfActivities\n| sort -NumberOfActivities\n| limit 10",
+                    "title": "Top 10 Users with most activties"                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "true",
+                    "query": "event.type='Activity' activity.activity.type=138\n| group NumberOfActivities=count(activity.activity.type) by activity.data.username \n| columns UserName=activity.data.username, NumberOfActivities\n| sort -NumberOfActivities",
+                    "title": "Users with unrestricted sessions"
+                }
+            ]
+        },
+        {
+            "tabName": "Agents",
+            "options": {
+                "layout": {
+                    "columns": 3
+                }
+            },        
+            "parameters": [],
+            "graphs": [
+                {
+                    "graphStyle": "line",
+                    "lineSmoothing": "straightLines",
+                    "plots": [
+                        {
+                            "color": "#fb000a",
+                            "facet": "rate",
+                            "filter": "event.type='Activity' activity.activity.type=51",
+                            "label": "Agents uninstalled"
+                        },
+                        {
+                            "color": "#96cf58",
+                            "facet": "rate",
+                            "filter": "event.type='Activity' activity.activity.type=17",
+                            "label": "Agents subscribed"
+                        },
+                        {
+                            "color": "#ffa31a",
+                            "facet": "rate",
+                            "filter": "event.type='Activity' activity.activity.type=47",
+                            "label": "Agents decommisioned"
+                        },
+                        {
+                            "color": "#3198e1",
+                            "facet": "rate",
+                            "filter": "event.type='Activity' activity.activity.type=48",
+                            "label": "Agents recommisioned"
+                        }
+                    ],
+                    "title": "Agents (subscribed + uninstalled + de-/recommissioned)"
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type='Activity' activity.activity.type in (17,43,47,48,49,50,51,52,53,54,55,74,89,93)\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group NumberOfEvents=count(activity.activity.type) by activity.activity.type, action\n| columns TypeOfEvent=action, NumberOfEvents\n| sort -NumberOfEvents",
+                    "showBarsColumn": "true",
+                    "title": "Number of Events by type"
+                },
+                {
+                    "graphStyle": "stacked",
+                    "lineSmoothing": "smoothCurves",
+                    "query": "event.type='Activity' activity.activity.type in (17,47,48,51) dataSource.category = 'security'\n| group Subcribed=count(activity.activity.type where activity.activity.type=17), Recommissioned=count(activity.activity.type where activity.activity.type=48), Decommissioned=0-count(activity.activity.type where activity.activity.type=47), Uninstalled=0-count(activity.activity.type where activity.activity.type=51) by timebucket()",
+                    "yScale": "linear",
+                    "title": "Delta of Agents (subscribed/recommissioned to uninstalled/decommissioned)"
+                }
+            ]
+        },
+        {
+            "tabName": "Agent Health",
+            "options": {
+                "layout": {
+                    "columns": 3
+                }
+            },        
+            "parameters": [],
+            "graphs": [
+                {
+                    "barWidth": "auto",
+                    "graphStyle": "stacked_bar",
+                    "title": "Agents disabled/enabled",
+                    "plots": [
+                      {
+                        "filter": "event.type='Activity' activity.activity.type in (117, 119,126,127,128)",
+                        "color": "#fb000a",
+                        "label": "Agent disabled",
+                        "facet": "rate"
+                      },
+                      {
+                        "filter": "event.type='Activity' activity.activity.type in (118,120)",
+                        "color": "#00b3a1",
+                        "label": "Agents enabled",
+                        "facet": "rate"
+                      }
+                    ]
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type='Activity' activity.activity.type in (117,118,119,120,126,127,128)\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group NumberOfEvents=count(activity.activity.type) by activity.activity.type, action\n| columns NumberOfEvents, TypeOfIncident=action\n| sort -NumberOfEvents",
+                    "showBarsColumn": "false",
+                    "title": "Number of Events by type"
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type='Activity' activity.activity.type in (117,118,119,120,126,127,128)\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group n=newest(activity.agent.id) by activity.activity.type, activity.data.computerName, activity.account.name, activity.site.name, action\n| filter activity.activity.type!=118 activity.activity.type!=120\n| columns AccountName=activity.account.name, SiteName=activity.site.name, EndpointName=activity.data.computerName, AgentStatus=action\n| sort AccountName, SiteName, EndpointName",
+                    "showBarsColumn": "false",
+                    "title": "Enpoints to take care of!!"
+                }           ]
+        },
+        {
+            "tabName": "Incidents",
+            "options": {
+                "layout": {
+                    "columns": 3
+                }
+            },        
+            "parameters": [],
+            "graphs": [
+                {
+                    "barWidth": "auto",
+                    "graphStyle": "stacked_bar",
+                    "title": "Incidents (Malicious + Suspicious + STAR)",
+                    "plots": [
+                      {
+                        "filter": "event.type='Activity' activity.activity.type=19",
+                        "color": "#fb000a",
+                        "label": "Threats",
+                        "facet": "rate"
+                      },
+                      {
+                        "filter": "event.type='Activity' activity.activity.type=4003",
+                        "color": "#ffa31a",
+                        "label": "Suspicious",
+                        "facet": "rate"
+                      },
+                      {
+                        "filter": "event.type='Activity' activity.activity.type=3608",
+                        "color": "#3198e1",
+                        "label": "STAR Alerts",
+                        "facet": "rate"
+                      }
+                    ]
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type='Activity' activity.activity.type in (18, 19, 20, 3608, 3757, 4001, 4003, 4008, 4009, 4104, 4105, 4106, 4107, 4108, 4109, 4110, 4111, 4112)\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group NumberOfIncidents=count(activity.activity.type) by activity.activity.type, action\n| columns NumberOfIncidents, TypeOfIncident=action\n| sort -NumberOfIncidents",
+                    "showBarsColumn": "false",
+                    "title": "Number of Incidents by type"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "false",
+                    "query": "event.type='Activity' activity.activity.type in (18,19,20,4001,4003,4009,4104,4105,4106,4107,4108,4109,4110,4111,4112)\n| group NumberOfIncidents=count() by activity.account.name, activity.site.name, action\n| columns AccountName=activity.account.name, SiteName=activity.site.name, NumberOfIncidents\n| sort -NumberOfIncidents, AccountName, SiteName\n| limit 20\n",
+                    "title": "Top 20 Sites with most incidents"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "false",
+                    "query": "event.type='Activity' activity.activity.type in (3608,3757)\n| group NumberOfAlerts=count() by activity.data.rulename\n| columns RuleName=activity.data.rulename, NumberOfAlerts\n| sort -NumberOfAlerts,RuleName\n| limit 20",
+                    "title": "STAR Custom Rules with most hits"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "false",
+                    "query": "event.type='Activity' activity.activity.type in (3608,3757)\n| group NumberOfAlerts=count() by activity.data.id, activity.data.rulename, activity.data.rulescopelevel, activity.data.fullScopeDetailsPath\n| columns NumberOfAlerts, ScopeName=activity.data.fullScopeDetailsPath, RuleName=activity.data.rulename\n| sort -NumberOfAlerts, ScopeName, RuleName\n| limit 20",
+                    "title": "STAR Custom Rules with most hits by Scope"
+                },
+                {
+                    "graphStyle": "",
+                    "showBarsColumn": "false",
+                    "query": "event.type='Activity' activity.activity.type in (4104,4105,4106,4107)\n| let Action=((activity.activity.type=4104) ? 'Manually marked as Malicious' : (activity.activity.type=4105) ? 'Manually marked as Suspicious' : (activity.activity.type=4106) ? 'Automatically marked as Malicious' : (activity.activity.type=4107) ? 'Automatically marked as Suspicious' : '-')\n| group NumberOfAlerts=count() by activity.data.ruleName, Action\n| columns NumberOfAlerts, Action, RuleName=activity.data.ruleName\n| sort -NumberOfAlerts,RuleName\n| limit 20",
+                    "title": "STAR Custom Rules with Active Responses"
+                }
+            ]
+        },
+        {
+            "tabName": "DeviceControl",
+            "options": {
+                "layout": {
+                    "columns": 3
+                }
+            },        
+            "parameters": [],
+            "graphs": [
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type=5126 activity.data.eventType='connected'\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| group NumberOfConnections=count(activity.data.deviceClass) by Description\n| columns NumberOfConnections, USBClass=Description\n| sort -NumberOfConnections\n| limit 20",
+                    "showBarsColumn": "false",
+                    "title": "Top 20 USB Classes connected"
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type=5126\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.activity.type, action, Description\n| columns ActivityType=action, USBDeviceClass=Description, NumberofEvents=c\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "Number of 'Device Control Approved' Events"
+                },
+                {
+                    "graphStyle": "pie",
+                    "query": "event.type ='Activity' activity.activity.type=5126\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.activity.type, action, Description\n| columns USBDeviceClass=Description, NumberofEvents=c\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "'Device Control Approved' Events by DeviceClass"
+                },
+                {
+                    "graphStyle": "pie",
+                    "query": "event.type ='Activity' activity.activity.type in(5125, 5126)\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.activity.type, action\n| columns EventType=action, NumberofEvents=c\n",
+                    "showBarsColumn": "false",
+                    "title": "'Device Control' Events"
+                }, 
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type=5125\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.activity.type, action, Description\n| columns ActivityType=action, USBDeviceClass=Description, NumberofEvents=c\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "Number of 'Device Control Blocked' Events"
+                },
+                {
+                    "graphStyle": "pie",
+                    "query": "event.type ='Activity' activity.activity.type=5125\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.activity.type, action, Description\n| columns USBDeviceClass=Description, NumberofEvents=c\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "'Device Control Blocked' Events by DeviceClass"
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type in (5125,5126) activity.data.interface='USB'\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.data.uid, activity.activity.type, action, Description\n| columns NumberofEvents=c, ActivityType=action, USBDeviceClass=Description, USBDeviceID=activity.data.uid\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "Number of 'Device Control' Events by SerialNumber"
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type in (5125,5126) activity.data.interface='USB'\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.agent.id, activity.data.computerName, activity.activity.type, action, Description\n| columns NumberofEvents=c, ActivityType=action, USBDeviceClass=Description, EndpointName=activity.data.computerName\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "Number of 'Device Control' Events by Endpoint"
+                },
+                {
+                    "graphStyle": "",
+                    "query": "event.type ='Activity' activity.activity.type in (5125,5126) activity.data.interface='USB'\n| lookup Description from \"usbclasses\" by BaseUSBClass=activity.data.deviceClass\n| lookup action from 's1mgmtactivities' by id=activity.activity.type\n| group c=count() by activity.data.lastLoggedInUserName, activity.activity.type, action, Description\n| columns NumberofEvents=c, ActivityType=action, USBDeviceClass=Description, UserName=activity.data.lastLoggedInUserName\n| sort -NumberofEvents ",
+                    "showBarsColumn": "false",
+                    "title": "Number of 'Device Control' Events by Endpoint"
+                }
+            ]
+        }
+    ]
+}

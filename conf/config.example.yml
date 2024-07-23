@@ -1,0 +1,15 @@
+#
+#
+service:
+  - customer:
+      s1-name: "MY NEW CUSTOMER"
+      s1-url: "https://<MGMTURL>.sentinelone.net"
+      s1-api: "API KEY TO READ ACTIVITY LOG"
+      sdl-url: "https://<INGEST-API-ENDPOINT>.sentinelone.net"
+      sdl-api: "<INGEST API WRITE KEY "
+      interval: 10
+      filters:
+        account_ids: 
+        site_ids: 
+        group_ids:
+

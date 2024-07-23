@@ -1,0 +1,34 @@
+activity:
+  accountId : activity.account.id
+  accountName : activity.account.name
+  activityType: activity.activity.type
+  activityUuid : activity.activity.uuid
+  agentId: activity.agent.id
+  agentUpdatedVersion : activity.agent.updatedVersion
+  comments: activity.comments
+  createdAt : activity.createAt
+  data:
+    accountName: activity.data.account.name
+    createdAt: activity.data.createdAt
+    fullScopeDetails: activity.data.fullScope.Details,
+    fullScopeDetailsPath: activity.data.fullScope.DetailsPath,
+    groupName: activity.data.group.name,
+    ipAddress: activity.data.ip.address,
+    scanType: activity.data.scan.type,
+    scopeLevel: activity.data.scope.level,
+    scopeName: activity.data.scope.name,
+    siteName: activity.data.site.name,
+    totalNewDevices: activity.data.,
+  description: activity.description
+  groupId: activity.group.id
+  groupName: activity.group.name
+  hash: activity.hash
+  id: activity.id
+  osFamily: activity.osFamily
+  primaryDescription: activity.description.primary
+  secondaryDescription: activity.description.secondary, 
+  siteId: activity.site.id
+  siteName: activity.site.name
+  threatId: activity.threat.id
+  updatedAt: activity.updatedAt
+  userId: activity.use.id

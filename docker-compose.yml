@@ -1,0 +1,10 @@
+version: "3.3"
+
+services:
+  pushover:
+    build: 
+      context: ./
+    container_name: "activity-sdl"
+    restart: unless-stopped
+    volumes:
+      - "/var/log/activity-sdl:/logs"
